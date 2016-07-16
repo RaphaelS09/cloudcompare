@@ -11,7 +11,11 @@ project( QCC_DB_LIB )
 file( GLOB header_list *.h)
 file( GLOB source_list *.cpp)
 
-add_library( ${PROJECT_NAME} SHARED ${header_list} ${source_list} )
+if(ON_MXE)
+    add_library( ${PROJECT_NAME} STATIC ${header_list} ${source_list} )
+else()
+    add_library( ${PROJECT_NAME} SHARED ${header_list} ${source_list} )
+endif(ON_MXE)
 
 target_link_libraries( ${PROJECT_NAME} CC_CORE_LIB )
 target_link_libraries( ${PROJECT_NAME} CC_FBO_LIB )
@@ -20,13 +24,14 @@ target_link_libraries( ${PROJECT_NAME} CC_FBO_LIB )
 qt5_use_modules(${PROJECT_NAME} Core Gui Widgets OpenGL)
 
 # Add custom preprocessor definitions
-if (WIN32)
+if (WIN32 AND NOT ON_MXE)
 	set_property( TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS CC_USE_AS_DLL QCC_DB_USE_AS_DLL )
 elseif( APPLE )
 	set_target_properties( ${PROJECT_NAME} PROPERTIES
 		INSTALL_RPATH "." )
 endif()
 
+if (NOT ON_MXE)
 # install (shared) lib to specified destinations
 if( WIN32 OR APPLE )
 	foreach( dest ${INSTALL_DESTINATIONS} )
@@ -34,4 +39,5 @@ if( WIN32 OR APPLE )
 	endforeach()
 else()
 	install_shared( ${PROJECT_NAME} lib/cloudcompare 0 ) #default destination: /usr/lib
+endif()
 endif()

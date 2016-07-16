@@ -9,7 +9,7 @@ else()
 	set( SHARED_LIB_TYPE LIBRARY )
 endif()
 
-if( WIN32 )
+if( WIN32 AND NOT QT_STATIC)
 	# Export Qt Dlls to specified destinations
 	function( install_Qt_Dlls ) # 2 arguments: ARGV0 = release destination / ARGV1 = debug destination
 		if( ${ARGC} EQUAL 1 )

@@ -18,6 +18,7 @@ if (INSTALL_QSRA_PLUGIN)
 	#include the whole CC directory (easier)
 	include_directories( ${CloudCompare_SOURCE_DIR} )
 	
+    if (NOT QT_STATIC)
 	#we need Color Scale Manager and Editor importer
 	file( GLOB CC_PLUGIN_CUSTOM_HEADER_LIST ${CloudCompare_SOURCE_DIR}/ccColorScale*.h )
 	file( GLOB CC_PLUGIN_CUSTOM_SOURCE_LIST ${CloudCompare_SOURCE_DIR}/ccColorScale*.cpp )
@@ -29,6 +30,7 @@ if (INSTALL_QSRA_PLUGIN)
 	set( CC_PLUGIN_CUSTOM_UI_LIST	${CloudCompare_SOURCE_DIR}/ui_templates/colorScaleEditorDlg.ui
 									${CloudCompare_SOURCE_DIR}/ui_templates/renderToFileDialog.ui )
 
+    endif(NOT QT_STATIC)
 	include( ../CMakePluginTpl.cmake )
 	
 	#DXF support

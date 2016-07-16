@@ -37,13 +37,36 @@ endif()
 qt5_wrap_ui( generated_ui_list ${ui_list} )
 qt5_add_resources( generated_qrc_list ${qrc_list} )
 
+if (QT_STATIC ) # when qt is static we must build static plugins! see here https://wiki.qt.io/Plugins#Static_plugins and define the right macro
+    add_library( ${PROJECT_NAME} STATIC ${header_list} ${source_list} ${moc_list} ${generated_ui_list} ${generated_qrc_list})
+    add_definitions(-DQT_STATICPLUGIN)
+
+    # do not know why by I need bot these calls \todo fixthis
+    list( APPEND STATIC_PLUGINS ${PROJECT_NAME} CACHE INTERNAL)
+    set(STATIC_PLUGINS ${STATIC_PLUGINS} ${PROJECT_NAME})
+
+
+    get_filename_component(class_name ${CMAKE_CURRENT_SOURCE_DIR} NAME)
+
+    file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/../static_plugins.h"  "Q_IMPORT_PLUGIN(${class_name})\n" )
+
+    if(qrc_list)
+        file(APPEND "${CMAKE_CURRENT_BINARY_DIR}/../static_plugins_resources.h"  "Q_INIT_RESOURCE(${class_name});\n" )
+
+    endif(qrc_list)
+
+
+
+
+else()
 add_library( ${PROJECT_NAME} SHARED ${header_list} ${source_list} ${moc_list} ${generated_ui_list} ${generated_qrc_list})
+endif(QT_STATIC)
 
 # Add custom default preprocessor definitions
 if (OPTION_GL_QUAD_BUFFER_SUPPORT)
 	set_property( TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS CC_GL_WINDOW_USE_QWINDOW )
 endif()
-if( WIN32 )
+if( WIN32 AND NOT QT_STATIC )
     set_property( TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS CC_USE_AS_DLL QCC_DB_USE_AS_DLL QCC_IO_USE_AS_DLL )
 endif()
 
@@ -67,6 +90,7 @@ target_link_libraries( ${PROJECT_NAME} QCC_GL_LIB )
 # Qt
 qt5_use_modules(${PROJECT_NAME} Core Gui Widgets OpenGL Concurrent)
 
+if (NOT QT_STATIC)
 if( APPLE )
     # put all the plugins we build into one directory
     set( PLUGINS_OUTPUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/../../ccPlugins" )
@@ -99,6 +123,7 @@ if( ${OPTION_BUILD_CCVIEWER} )
         endif()
     endif()
 endif()
+endif(NOT QT_STATIC)
 
 #'GL filter' plugins specifics
 if( CC_SHADER_FOLDER )

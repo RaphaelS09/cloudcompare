@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 3.0)
 
 cmake_policy(PUSH)
 
+option (ON_MXE "Wheter or not we are compiling CC from MXE" OFF)
+option (QT_STATIC "On when we are linking against static-qt" OFF )
+
+if (ON_MXE)
+    add_definitions(-DON_MXE) # adding this also as definition to be used in headers
+
+    set(STATIC_PLUGINS CACHE INTERNAL "" FORCE)
+endif()
+
 # set up rpaths before we do anything
 if (APPLE)
 	# see: https://cmake.org/Wiki/CMake_RPATH_handling

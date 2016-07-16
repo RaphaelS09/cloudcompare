@@ -24,7 +24,12 @@ if( ${OPTION_SUPPORT_MAC_PDMS_FORMAT} )
 endif()
 
 qt5_wrap_ui( generated_ui_list ${ui_list} )
-add_library( ${PROJECT_NAME} SHARED ${header_list} ${source_list} ${generated_ui_list} )
+
+if (ON_MXE)
+    add_library( ${PROJECT_NAME} STATIC ${header_list} ${source_list} ${generated_ui_list} )
+else()
+    add_library( ${PROJECT_NAME} SHARED ${header_list} ${source_list} ${generated_ui_list} )
+endif(ON_MXE)
 
 target_link_libraries( ${PROJECT_NAME} CC_CORE_LIB )
 target_link_libraries( ${PROJECT_NAME} CC_FBO_LIB )
@@ -37,13 +42,14 @@ qt5_use_modules(${PROJECT_NAME} Core)
 target_link_contrib( ${PROJECT_NAME} )
 
 # Add custom preprocessor definitions
-if (WIN32)
+if (WIN32 AND NOT ON_MXE )
 	set_property( TARGET ${PROJECT_NAME} APPEND PROPERTY COMPILE_DEFINITIONS CC_USE_AS_DLL QCC_IO_USE_AS_DLL )
 elseif( APPLE )
 	set_target_properties( ${PROJECT_NAME} PROPERTIES
 		INSTALL_RPATH "." )
 endif()
 
+if (NOT ON_MXE) # when on mxe the lib is static, no need for installing
 # install (shared) lib to specified destinations
 if( WIN32 OR APPLE )
 	foreach( dest ${INSTALL_DESTINATIONS} )
@@ -51,4 +57,7 @@ if( WIN32 OR APPLE )
 	endforeach()
 else()
 	install_shared( ${PROJECT_NAME} lib/cloudcompare 0 ) #default destination: /usr/lib
+
 endif()
+
+endif(NOT ON_MXE)
