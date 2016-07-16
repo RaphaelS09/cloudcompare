@@ -103,7 +103,7 @@ install_ext( TARGETS ${PROJECT_NAME} ${CLOUDCOMPARE_DEST_FOLDER} )
 # Auxiliary files
 set( auxFiles  ${CloudCompareProjects_SOURCE_DIR}/CHANGELOG.md bin_other/license.txt bin_other/global_shift_list_template.txt )
 
-if( WIN32 )
+if( WIN32 AND NOT QT_STATIC )
 	# Export Qt dlls
 	install_Qt_Dlls( ${CLOUDCOMPARE_DEST_FOLDER} )
 	install_Qt_ImageFormats( ${CLOUDCOMPARE_DEST_FOLDER} )

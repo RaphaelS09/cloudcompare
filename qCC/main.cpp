@@ -56,10 +56,6 @@
 #include <vld.h>
 #endif
 
-#ifdef ON_MXE
-    #include <QtPlugin>
-    #include "../plugins/static_plugins.h"
-#endif
 //! QApplication wrapper
 class qccApplication : public QApplication
 {
@@ -131,9 +127,6 @@ int main(int argc, char **argv)
 	//DGM: this is mandatory to enable exclusive full screen for ccGLWidget (at least on Windows)
 	QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-#ifdef ON_MXE
-#include "../plugins/static_plugins_resources.h"
-#endif
 	//QT initialiation
 	qccApplication app(argc, argv);
 

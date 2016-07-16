@@ -100,7 +100,7 @@ install_ext( TARGETS ccViewer ${CCVIEWER_DEST_FOLDER} )
 # Auxiliary files
 set( auxFiles bin_other/license.txt )
 
-if( WIN32 )
+if( WIN32  AND NOT QT_STATIC )
 	# Export Qt dlls
 	install_Qt_Dlls( ${CCVIEWER_DEST_FOLDER} )
 	install_Qt5_plugins( ${CCVIEWER_DEST_FOLDER} )
