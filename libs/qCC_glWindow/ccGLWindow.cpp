@@ -89,6 +89,7 @@ const GLuint GL_INVALID_LIST_ID = (~0);
 const int CC_GL_FILTER_BANNER_MARGIN = 5;
 
 //default interaction flags
+
 ccGLWindow::INTERACTION_FLAGS ccGLWindow::PAN_ONLY()           { ccGLWindow::INTERACTION_FLAGS flags = INTERACT_PAN | INTERACT_ZOOM_CAMERA | INTERACT_2D_ITEMS | INTERACT_CLICKABLE_ITEMS; return flags; }
 ccGLWindow::INTERACTION_FLAGS ccGLWindow::TRANSFORM_CAMERA()   { ccGLWindow::INTERACTION_FLAGS flags = INTERACT_ROTATE | PAN_ONLY(); return flags; }
 ccGLWindow::INTERACTION_FLAGS ccGLWindow::TRANSFORM_ENTITIES() { ccGLWindow::INTERACTION_FLAGS flags = INTERACT_ROTATE | INTERACT_PAN | INTERACT_ZOOM_CAMERA | INTERACT_TRANSFORM_ENTITIES | INTERACT_CLICKABLE_ITEMS; return flags; }
@@ -6000,6 +6001,51 @@ CCVector3 ccGLWindow::backprojectPointOnTriangle(	const CCVector2i& P2D,
 
 	return CCVector3::fromArray(G);
 
+}
+
+void ccGLWindow::keyPressEvent(QKeyEvent *event)
+{
+    ccGLMatrixd rot;
+    switch (event->key())
+    {
+    case Qt::Key_W:
+        moveCamera(0,0,-1);
+        break;
+    case Qt::Key_S:
+        moveCamera(0,0,1);
+        break;
+    case Qt::Key_A:
+        moveCamera(-1,0,0);
+        break;
+    case Qt::Key_D:
+        moveCamera(1,0,0);
+        break;
+    case Qt::Key_Space:
+        moveCamera(0,1,0);
+        break;
+    case Qt::Key_Alt:
+        moveCamera(0,-1,0);
+        break;
+    case Qt::Key_E:
+        rot.setColumn(0,Tuple4Tpl<double>(std::cos(0.1),-1*std::sin(0.1),0,0));
+        rot.setColumn(1,Tuple4Tpl<double>(std::sin(0.1),std::cos(0.1),0,0));
+        rot.setColumn(2,Tuple4Tpl<double>(0,0,1,0));
+        rot.setColumn(3,Tuple4Tpl<double>(0,0,0,1));
+        rotateBaseViewMat(rot);
+        redraw();
+        break;
+    case Qt::Key_Q:
+        rot.setColumn(0,Tuple4Tpl<double>(std::cos(-0.1),-1*std::sin(-0.1),0,0));
+        rot.setColumn(1,Tuple4Tpl<double>(std::sin(-0.1),std::cos(-0.1),0,0));
+        rot.setColumn(2,Tuple4Tpl<double>(0,0,1,0));
+        rot.setColumn(3,Tuple4Tpl<double>(0,0,0,1));
+        rotateBaseViewMat(rot);
+        redraw();
+        break;
+    default:
+        break;
+    }
+    redraw();
 }
 
 void ccGLWindow::checkScheduledRedraw()

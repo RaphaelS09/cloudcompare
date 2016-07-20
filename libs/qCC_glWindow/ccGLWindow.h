@@ -38,6 +38,7 @@
 #else
 #include <QOpenGLWidget>
 #endif
+#include <QKeyEvent>
 
 //system
 #include <unordered_set>
@@ -524,6 +525,8 @@ public:
 
 	//! Returns unique ID
 	inline int getUniqueID() const { return m_uniqueID; }
+
+    void keyPressEvent(QKeyEvent *event);
 
 public: //LOD
 

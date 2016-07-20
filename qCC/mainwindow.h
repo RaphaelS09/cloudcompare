@@ -180,7 +180,7 @@ public:
 
 	//! Dispatches the (loaded) plugins in the UI
 	void dispatchPlugins(const tPluginInfoList& plugins, const QStringList& pluginPaths);
-	
+
 protected slots:
 
 	//! Creates a new 3D GL sub-window
