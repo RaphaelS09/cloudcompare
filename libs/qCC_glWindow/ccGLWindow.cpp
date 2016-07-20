@@ -174,6 +174,29 @@ bool ccGLWindow::initFBOSafe(ccFrameBufferObject* &fbo, int w, int h)
 	return true;
 }
 
+void ccGLWindow::mouseRotation(QMouseEvent *event)
+{
+    ccGLMatrixd rot;
+    int x=event->x();
+    int y=event->y();
+    if(py<0 || px<0)
+    {
+        px=x;
+        py=y;
+        return;
+    }
+    double tx=(x-px)*0.01;
+    double ty=(y-py)*0.01;
+    rot.setColumn(0,Tuple4Tpl<double>(std::cos(tx),std::sin(ty)*std::sin(tx),-1*std::cos(ty)*std::sin(tx),0));
+    rot.setColumn(1,Tuple4Tpl<double>(0,std::cos(ty),std::sin(ty),0));
+    rot.setColumn(2,Tuple4Tpl<double>(std::sin(tx),-1*std::sin(ty)*std::cos(tx),std::cos(ty)*std::cos(tx),0));
+    rot.setColumn(3,Tuple4Tpl<double>(0,0,0,1));
+    rotateBaseViewMat(rot);
+    redraw();
+    px=x;
+    py=y;
+}
+
 ccGLWindow::ccGLWindow(	QSurfaceFormat* format/*=0*/,
 						ccGLWindowParent* parent/*=0*/,
 						bool silentInitialization/*=false*/)
@@ -3578,6 +3601,7 @@ void ccGLWindow::mouseMoveEvent(QMouseEvent *event)
 			}
 			event->accept();
 		}
+        mouseRotation(event);
 		//don't need to process any further
 		return;
 	}
@@ -6009,22 +6033,22 @@ void ccGLWindow::keyPressEvent(QKeyEvent *event)
     switch (event->key())
     {
     case Qt::Key_W:
-        moveCamera(0,0,-1);
+        moveCamera(0,0,-0.5);
         break;
     case Qt::Key_S:
-        moveCamera(0,0,1);
+        moveCamera(0,0,0.5);
         break;
     case Qt::Key_A:
-        moveCamera(-1,0,0);
+        moveCamera(-0.5,0,0);
         break;
     case Qt::Key_D:
-        moveCamera(1,0,0);
+        moveCamera(0.5,0,0);
         break;
     case Qt::Key_Space:
-        moveCamera(0,1,0);
+        moveCamera(0,0.5,0);
         break;
     case Qt::Key_Alt:
-        moveCamera(0,-1,0);
+        moveCamera(0,-0.5,0);
         break;
     case Qt::Key_E:
         rot.setColumn(0,Tuple4Tpl<double>(std::cos(0.1),-1*std::sin(0.1),0,0));

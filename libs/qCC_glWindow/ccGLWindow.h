@@ -134,6 +134,9 @@ public:
 							PIVOT_ALWAYS_SHOW,
 	};
 
+    int px=-1;
+    int py=-1;
+
 	//! Default constructor
 	ccGLWindow(QSurfaceFormat* format = 0, ccGLWindowParent* parent = 0, bool silentInitialization = false);
 
@@ -527,6 +530,8 @@ public:
 	inline int getUniqueID() const { return m_uniqueID; }
 
     void keyPressEvent(QKeyEvent *event);
+
+    void mouseRotation(QMouseEvent *event);
 
 public: //LOD
 
