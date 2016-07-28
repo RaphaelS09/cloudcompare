@@ -6,6 +6,7 @@ ccOpenVR::ccOpenVR()
 {
     rendermodels=nullptr;
     fbo = new ccFrameBufferObject();
+    session = false;
 }
 
 ccOpenVR::~ccOpenVR()
@@ -31,7 +32,6 @@ bool ccOpenVR::init()
         QMessageBox::critical(0,"VR_Init Failed",QString("Unable to get render model interface: %1").arg(vr::VR_GetVRInitErrorAsEnglishDescription(error)));
         return false;
     }
-    HMD->GetRecommendedRenderTargetSize(&RenderWidth,&RenderHeigh);
     return true;
 }
 
@@ -52,5 +52,38 @@ bool ccOpenVR::SetupStereoRenderTargets()
 
     HMD->GetRecommendedRenderTargetSize(&RenderWidth,&RenderHeigh);
 
+    if(!fbo->init(RenderWidth,RenderWidth))
+    {
+        QMessageBox::critical(0,"OpenVR", "Cannot initialize framebuffer for OpenVR");
+        return false;
+    }
+    if(!fbo->start())
+    {
+        QMessageBox::critical(0,"OpenVR", "Cannot bind framebuffer for OpenVR");
+        return false;
+    }
 
+    return true;
+
+}
+
+ccGLMatrixd HmdMat44toccGLMatd(vr::HmdMatrix44_t m)
+{
+    ccGLMatrixd mat;
+    for(int i=0;i<4;++i)
+    {
+        mat.setColumn(i,Tuple4Tpl<double>(m.m[i][0],m.m[i][1],m.m[i][2],m.m[i][3]));
+    }
+    return mat;
+}
+
+ccGLMatrixd HmdMat34toccGLMatd(vr::HmdMatrix34_t m)
+{
+    ccGLMatrixd mat;
+    for(int i=0;i<3;++i)
+    {
+        mat.setColumn(i,Tuple4Tpl<double>(m.m[i][0],m.m[i][1],m.m[i][2],m.m[i][3]));
+    }
+    mat.setColumn(3,Tuple4Tpl<double>(0.0f,0.0f,0.0f,1.0f));
+    return mat;
 }

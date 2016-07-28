@@ -17,6 +17,9 @@
 //system
 #include <vector>
 
+ccGLMatrixd HmdMat44toccGLMatd(vr::HmdMatrix44_t m);
+ccGLMatrixd HmdMat34toccGLMatd(vr::HmdMatrix34_t m);
+
 class ccOpenVR
 {
 public:
@@ -40,6 +43,7 @@ public:
     bool SetupStereoRenderTargets();
 
     ccFrameBufferObject *fbo;
+    bool session;
 
 private:
 

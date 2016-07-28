@@ -1741,6 +1741,18 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
 			}
 		}
 #endif //CC_OCULUS_SUPPORT
+#ifdef CC_OPENVR_SUPPORT
+        else if(m_stereoParams.glassType==StereoParams::OPENVR && s_openvr.session)
+        {
+            renderingParams.useFBO = true;
+            renderingParams.drawBackground = (CONTEXT.currentLODLevel == 0);
+            renderingParams.draw3DPass = true;
+            currentFBO = s_openvr.fbo;
+            bindFBO(s_openvr.fbo);
+
+        }
+
+#endif
 	}
 
 	//if a FBO is activated
@@ -6123,17 +6135,13 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
             return false;
         }
         s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
-        if(!s_openvr.fbo->init(s_openvr.getRecommendedRenderWidth(),s_openvr.getRecommendedRenderHeigh()))
+        if(!s_openvr.SetupStereoRenderTargets())
         {
-            QMessageBox::critical(asWidget(),"OpenVR", "Cannot initialize framebuffer for OpenVR");
-            return false;
-        }
-        if(!s_openvr.fbo->start())
-        {
-            QMessageBox::critical(asWidget(),"OpenVR", "Cannot bind framebuffer for OpenVR");
+            QMessageBox::critical(asWidget(),"OpenVR", "OpenVR SetupStereoRenderTargets failed");
             return false;
         }
 
+        s_openvr.session=true;
     }
 #else
     QMessageBox::critical(asWidget(), "OpenVR", "The OpenVR device is not supported by this version\n(use the 'Stereo' version)");
@@ -6215,7 +6223,7 @@ void ccGLWindow::disableStereoMode()
             }
 #endif
 #ifdef CC_OPENVR_SUPPORT
-            else if (params.glassType == StereoParams::OPENVR)
+            if (s_openvr.session)
             {
                 QMessageBox::warning(asWidget(),"OpenVR","Nedodelano vypnuti");
             }
