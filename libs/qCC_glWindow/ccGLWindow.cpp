@@ -64,7 +64,6 @@ static OculusHMD s_oculus;
 #include "openvr/ccOpenVR.h"
 static ccOpenVR s_openvr;
 #endif
-
 #ifdef USE_VLD
 //VLD
 #include <vld.h>
@@ -1718,6 +1717,7 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
 				//Increment to use next texture, just before writing
 				int currentIndex = 0;
 				ovr_GetTextureSwapChainCurrentIndex(s_oculus.session, s_oculus.textureSwapChain, &currentIndex);
+
 				unsigned int colorTexID = 0;
 				ovr_GetTextureSwapChainBufferGL(s_oculus.session, s_oculus.textureSwapChain, currentIndex, &colorTexID);
 				s_oculus.fbo->attachColor(colorTexID);
@@ -2015,12 +2015,12 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
 			}
 		}
 	}
-
+	
 #ifdef CC_OCULUS_SUPPORT
 	if (oculusMode && s_oculus.session && renderingParams.passIndex == 1)
 	{
 		ovr_CommitTextureSwapChain(s_oculus.session, s_oculus.textureSwapChain);
-
+		
 		// Submit frame
 		ovrLayerHeader* layers = &s_oculus.layer.Header;
 		//glFunc->glEnable(GL_FRAMEBUFFER_SRGB);
@@ -2814,7 +2814,7 @@ void ccGLWindow::drawCross()
 {
 	ccQOpenGLFunctions* glFunc = functions();
 	assert(glFunc);
-
+	
 	//cross OpenGL drawing
 	glColor3ubv_safe<ccQOpenGLFunctions>(glFunc, ccColor::lightGrey.rgba);
 	glFunc->glBegin(GL_LINES);
@@ -4054,7 +4054,7 @@ void ccGLWindow::wheelEvent(QWheelEvent* event)
 	else if (keyboardModifiers & Qt::ShiftModifier)
 	{
 		event->accept();
-
+		
 		if (m_viewportParams.perspectiveView)
 		{
 			//same shortcut as Meshlab: change the fov value
@@ -4720,7 +4720,7 @@ void ccGLWindow::setPointSize(float size)
 	{
 		m_viewportParams.defaultPointSize = newSize;
 		m_updateFBO = true;
-
+	
 		displayNewMessage(	QString("New default point size: %1").arg(newSize),
 							ccGLWindow::LOWER_LEFT_MESSAGE, //DGM HACK: we cheat and use the same 'slot' as the window size
 							false,
@@ -5621,10 +5621,10 @@ QImage ccGLWindow::renderToImage(	float zoomFactor/*=1.0*/,
 
 				//in render mode we only want to capture it, not to display it
 				bindFBO(fbo);
-
+				
 				setStandardOrthoCorner();
 				ccGLUtils::DisplayTexture2DPosition(filter->getTexture(), 0, 0, CONTEXT.glW, CONTEXT.glH);
-
+				
 				bindFBO(0);
 			}
 
@@ -6209,39 +6209,39 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
 
 void ccGLWindow::disableStereoMode()
 {
-    if (m_stereoModeEnabled)
-    {
-        if (m_stereoParams.glassType == StereoParams::OCULUS)
-        {
-            toggleAutoRefresh(false);
-            displayNewMessage(QString(), ccGLWindow::SCREEN_CENTER_MESSAGE, false);
+	if (m_stereoModeEnabled)
+	{
+		if (m_stereoParams.glassType == StereoParams::OCULUS)
+		{
+			toggleAutoRefresh(false);
+			displayNewMessage(QString(), ccGLWindow::SCREEN_CENTER_MESSAGE, false);
 
 #ifdef CC_OCULUS_SUPPORT
-            if (s_oculus.session)
-            {
-                s_oculus.stop(false);
+			if (s_oculus.session)
+			{
+				s_oculus.stop(false);
             }
 #endif
 #ifdef CC_OPENVR_SUPPORT
             if (s_openvr.session)
             {
                 QMessageBox::warning(asWidget(),"OpenVR","Nedodelano vypnuti");
-            }
+			}
 #endif
-        }
-        else if (m_stereoParams.glassType == StereoParams::NVIDIA_VISION)
-        {
-            //toggleAutoRefresh(false);
-        }
-    }
+		}
+		else if (m_stereoParams.glassType == StereoParams::NVIDIA_VISION)
+		{
+			//toggleAutoRefresh(false);
+		}
+	}
 
-    m_stereoModeEnabled = false;
+	m_stereoModeEnabled = false;
 
-    if (m_fbo2)
-    {
-        //we don't need it anymore
-        removeFBOSafe(m_fbo2);
-    }
+	if (m_fbo2)
+	{
+		//we don't need it anymore
+		removeFBOSafe(m_fbo2);
+	}
 }
 
 void ccGLWindow::toggleExclusiveFullScreen(bool state)
