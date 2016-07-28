@@ -564,7 +564,8 @@ public: //stereo mode
 							RED_CYAN = 3,
 							CYAN_RED = 4,
 							NVIDIA_VISION = 5,
-							OCULUS = 6
+							OCULUS = 6,
+							OPENVR = 7
 		};
 
 		//! Whether stereo-mode is 'analgyph' or real stereo mode

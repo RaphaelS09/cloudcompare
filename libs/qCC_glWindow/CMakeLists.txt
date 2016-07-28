@@ -11,6 +11,10 @@ endif()
 
 project( QCC_GL_LIB )
 
+if( ${OPTION_USE_OPENVR_SDK} )
+	add_subdirectory( openvr )
+endif()
+
 file( GLOB header_list *.h)
 file( GLOB source_list *.cpp)
 
@@ -22,6 +26,8 @@ target_link_libraries( ${PROJECT_NAME} CC_FBO_LIB )
 
 # OCULUS support
 target_link_OCULUS_SDK( ${PROJECT_NAME} )
+
+target_link_OPENVR_SDK( ${PROJECT_NAME} )
 
 # Qt
 qt5_use_modules(${PROJECT_NAME} Core Gui Widgets OpenGL OpenGLExtensions)

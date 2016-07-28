@@ -27,6 +27,7 @@ const int COMBO_INDEX_RED_CYAN  = 2;
 const int COMBO_INDEX_CYAN_RED  = 3;
 const int COMBO_INDEX_NV_VISION = 4;
 const int COMBO_INDEX_OCULUS    = 5;
+const int COMBO_INDEX_OPENVR    = 6;
 
 ccStereoModeDlg::ccStereoModeDlg(QWidget* parent)
 	: QDialog(parent, Qt::Tool)
@@ -76,6 +77,10 @@ void ccStereoModeDlg::glassTypeChanged(int index)
 			Note: this mode works best in 'bubble view' mode"
 			);
 		break;
+    case COMBO_INDEX_OPENVR:
+        paramsGroupBox->setEnabled(false);
+        warningTextEdit->setVisible(false);
+        break;
 	default:
 		assert(false);
 		paramsGroupBox->setEnabled(false);
@@ -110,6 +115,9 @@ ccGLWindow::StereoParams ccStereoModeDlg::getParameters() const
 	case COMBO_INDEX_OCULUS:
 		params.glassType = ccGLWindow::StereoParams::OCULUS;
 		break;
+    case COMBO_INDEX_OPENVR:
+        params.glassType = ccGLWindow::StereoParams::OPENVR;
+        break;
 	}
 
 	//focal
@@ -145,6 +153,9 @@ void ccStereoModeDlg::setParameters(const ccGLWindow::StereoParams& params)
 	case ccGLWindow::StereoParams::OCULUS:
 		glassTypeComboBox->setCurrentIndex(COMBO_INDEX_OCULUS);
 		break;
+    case ccGLWindow::StereoParams::OPENVR:
+        glassTypeComboBox->setCurrentIndex(COMBO_INDEX_OPENVR);
+        break;
 	default:
 		assert(false);
 		break;
