@@ -17,6 +17,9 @@
 //system
 #include <vector>
 
+#include <QOpenGLFunctions_2_1>
+#include <QOpenGLExtensions>
+
 ccGLMatrixd HmdMat44toccGLMatd(vr::HmdMatrix44_t m);
 ccGLMatrixd HmdMat34toccGLMatd(vr::HmdMatrix34_t m);
 
@@ -52,6 +55,23 @@ private:
     uint32_t RenderWidth,RenderHeigh;
     vr::HmdMatrix44_t mat4ProjectionLeft,mat4ProjectionRight;
     vr::HmdMatrix34_t mat4eyePosLeft,mat4eyePosRight;
+
+    struct FramebufferDesc
+    {
+        GLuint m_nDepthBufferId;
+        GLuint m_nRenderTextureId;
+        GLuint m_nRenderFramebufferId;
+        GLuint m_nResolveTextureId;
+        GLuint m_nResolveFramebufferId;
+    };
+
+    FramebufferDesc leftEyeDesc;
+    FramebufferDesc rightEyeDesc;
+
+    bool CreateFrameBuffer(uint32_t w, uint32_t h, FramebufferDesc buf);
+
+    QOpenGLFunctions_2_1 func;
+    QOpenGLExtension_ARB_framebuffer_object extfunc;
 
 };
 

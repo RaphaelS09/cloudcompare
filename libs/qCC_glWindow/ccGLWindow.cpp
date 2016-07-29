@@ -6134,13 +6134,15 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
             QMessageBox::critical(asWidget(),"OpenVR", "OpenVR initialization failed");
             return false;
         }
+        ccLog::Print("OpenVR init");
         s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
+        ccLog::Print("OpenVR camera set");
         if(!s_openvr.SetupStereoRenderTargets())
         {
             QMessageBox::critical(asWidget(),"OpenVR", "OpenVR SetupStereoRenderTargets failed");
             return false;
         }
-
+        ccLog::Print("Openvr render target set");
         s_openvr.session=true;
     }
 #else
