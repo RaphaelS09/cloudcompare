@@ -104,7 +104,8 @@ struct OculusHMD
 			desc.Height = bufferSize.h;
 			desc.MipLevels = 1;
 			desc.SampleCount = 1;
-			desc.StaticImage = ovrFalse;
+			desc.StaticImage = ovrFalse;
+
 			if (!ovr_CreateTextureSwapChainGL(session,
 				&desc,
 				&textureSwapChain) == ovrSuccess)
@@ -129,13 +130,15 @@ struct OculusHMD
 			assert(depthTextures.empty());
 
 			int textureCount = 0;
-			ovr_GetTextureSwapChainLength(session, textureSwapChain, &textureCount);			depthTextures.resize(textureCount, 0);
+			ovr_GetTextureSwapChainLength(session, textureSwapChain, &textureCount);
+			depthTextures.resize(textureCount, 0);
 			for (int i = 0; i<textureCount; ++i)
 			{
 				//set the color texture
 				{
 					unsigned int texId;
-					ovr_GetTextureSwapChainBufferGL(session, textureSwapChain, 0, &texId);					glFunc->glBindTexture(GL_TEXTURE_2D, texId);
+					ovr_GetTextureSwapChainBufferGL(session, textureSwapChain, 0, &texId);
+					glFunc->glBindTexture(GL_TEXTURE_2D, texId);
 					glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
 					glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 					glFunc->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR/*GL_LINEAR_MIPMAP_LINEAR*/);

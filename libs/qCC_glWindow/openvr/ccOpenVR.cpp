@@ -5,8 +5,8 @@
 ccOpenVR::ccOpenVR()
 {
     rendermodels=nullptr;
-    fbo = new ccFrameBufferObject();
     session = false;
+    fbo = new ccFrameBufferObject;
 }
 
 ccOpenVR::~ccOpenVR()
@@ -32,11 +32,6 @@ bool ccOpenVR::init()
         QMessageBox::critical(0,"VR_Init Failed",QString("Unable to get render model interface: %1").arg(vr::VR_GetVRInitErrorAsEnglishDescription(error)));
         return false;
     }
-    if(!func.initializeOpenGLFunctions())
-    {
-        QMessageBox::critical(0,"Error","Cannot initialize OpenGL functions");
-        return false;
-    }
     return true;
 }
 
@@ -57,63 +52,11 @@ bool ccOpenVR::SetupStereoRenderTargets()
 
     HMD->GetRecommendedRenderTargetSize(&RenderWidth,&RenderHeigh);
 
-    /*if(!fbo->init(RenderWidth,RenderWidth))
+    if(!fbo->init(RenderWidth,RenderHeigh))
     {
         QMessageBox::critical(0,"OpenVR", "Cannot initialize framebuffer for OpenVR");
         return false;
     }
-    if(!fbo->start())
-    {
-        QMessageBox::critical(0,"OpenVR", "Cannot bind framebuffer for OpenVR");
-        return false;
-    }*/
-
-    if(!CreateFrameBuffer( RenderWidth, RenderWidth, leftEyeDesc ))
-    {
-        QMessageBox::critical(0,"Error","Cannot create framebuffer for left eye");
-        return false;
-    }
-    if(!CreateFrameBuffer( RenderWidth, RenderWidth, rightEyeDesc ))
-    {
-        QMessageBox::critical(0,"Error","Cannot create framebuffer for right eye");
-        return false;
-    }
-
-}
-
-bool ccOpenVR::CreateFrameBuffer(uint32_t w, uint32_t h, FramebufferDesc buf)
-{
-    extfunc.glGenFramebuffers(1, &buf.m_nRenderFramebufferId );
-    extfunc.glBindFramebuffer(GL_FRAMEBUFFER, buf.m_nRenderFramebufferId);
-
-    extfunc.glGenRenderbuffers(1, &buf.m_nDepthBufferId);
-    extfunc.glBindRenderbuffer(GL_RENDERBUFFER, buf.m_nDepthBufferId);
-    extfunc.glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT, w, h );
-    extfunc.glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER,	buf.m_nDepthBufferId );
-
-    /*extfunc.glGenTextures(1, &buf.m_nRenderTextureId );
-    extfunc.glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, buf.m_nRenderTextureId );
-    extfunc.glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA8, w, h, true);
-    extfunc.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, buf.m_nRenderTextureId, 0);*/
-
-    extfunc.glGenFramebuffers(1, &buf.m_nResolveFramebufferId );
-    extfunc.glBindFramebuffer(GL_FRAMEBUFFER, buf.m_nResolveFramebufferId);
-
-    /*extfunc.glGenTextures(1, &buf.m_nResolveTextureId );
-    extfunc.glBindTexture(GL_TEXTURE_2D, buf.m_nResolveTextureId );
-    extfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    extfunc.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    extfunc.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-    extfunc.glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, buf.m_nResolveTextureId, 0);*/
-
-    // check FBO status
-    GLenum status = extfunc.glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-    {
-        return false;
-    }
-
-    extfunc.glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
     return true;
 }

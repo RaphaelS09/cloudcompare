@@ -1749,6 +1749,11 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
             renderingParams.draw3DPass = true;
             currentFBO = s_openvr.fbo;
             bindFBO(s_openvr.fbo);
+            CONTEXT.glW=s_openvr.RenderWidth;
+            CONTEXT.glH=s_openvr.RenderHeigh;
+            modifiedViewport=true;
+
+            bindFBO(0);
 
         }
 
@@ -6135,8 +6140,6 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
             return false;
         }
         ccLog::Print("OpenVR init");
-        s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
-        ccLog::Print("OpenVR camera set");
         if(!s_openvr.SetupStereoRenderTargets())
         {
             QMessageBox::critical(asWidget(),"OpenVR", "OpenVR SetupStereoRenderTargets failed");
