@@ -6,12 +6,14 @@ ccOpenVR::ccOpenVR()
 {
     rendermodels=nullptr;
     session = false;
-    fbo = new ccFrameBufferObject;
+    fboLeft = new ccFrameBufferObject;
+    fboRight = new ccFrameBufferObject;
 }
 
 ccOpenVR::~ccOpenVR()
 {
-    delete fbo;
+    delete fboLeft;
+    delete fboRight;
 }
 
 bool ccOpenVR::init()
@@ -32,6 +34,8 @@ bool ccOpenVR::init()
         QMessageBox::critical(0,"VR_Init Failed",QString("Unable to get render model interface: %1").arg(vr::VR_GetVRInitErrorAsEnglishDescription(error)));
         return false;
     }
+    HMD->GetRecommendedRenderTargetSize(&RenderWidth,&RenderHeigh);
+
     return true;
 }
 
@@ -43,21 +47,72 @@ void ccOpenVR::SetupCameras(float NearClip, float FarClip)
     mat4eyePosRight =  HMD->GetEyeToHeadTransform(vr::Eye_Right);
 }
 
-bool ccOpenVR::SetupStereoRenderTargets()
+bool ccOpenVR::SetupStereoRenderTargets(QOpenGLContext *context)
 {
     if(!HMD)
     {
         return false;
     }
 
-    HMD->GetRecommendedRenderTargetSize(&RenderWidth,&RenderHeigh);
-
-    if(!fbo->init(RenderWidth,RenderHeigh))
+    if(!SetupRenderTarget(fboLeft,context))
     {
-        QMessageBox::critical(0,"OpenVR", "Cannot initialize framebuffer for OpenVR");
+        QMessageBox::critical(0,"OpenVR", "Cannot initialize left framebuffer for OpenVR");
         return false;
     }
 
+    if(!SetupRenderTarget(fboRight,context))
+    {
+        QMessageBox::critical(0,"OpenVR", "Cannot initialize right framebuffer for OpenVR");
+        return false;
+    }
+
+    return true;
+}
+
+bool ccOpenVR::SetupRenderTarget(ccFrameBufferObject *fbo, QOpenGLContext *context)
+{
+    QOpenGLFunctions_2_1 *func = context->versionFunctions<QOpenGLFunctions_2_1>();
+    unsigned int texId;
+    func->glGenTextures(1, &texId);
+    func->glBindTexture(GL_TEXTURE_2D, texId);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR/*GL_LINEAR_MIPMAP_LINEAR*/);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    if (context->hasExtension(QByteArrayLiteral("GLE_EXT_texture_filter_anisotropic")))
+    {
+        func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
+    }
+    func->glBindTexture(GL_TEXTURE_2D, 0);
+
+    func->glPushAttrib(GL_ENABLE_BIT);
+    func->glEnable(GL_TEXTURE_2D);
+
+    GLuint texID = 0;
+    func->glGenTextures(1, &texID);
+    func->glBindTexture(GL_TEXTURE_2D, texID);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE, GL_LUMINANCE);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    func->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    func->glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32, RenderWidth, RenderHeigh, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
+    func->glBindTexture(GL_TEXTURE_2D, 0);
+
+    func->glPopAttrib();
+
+
+    /*if(!fbo->initColor())
+    {
+        QMessageBox::critical(0,"OpenVR", "Cannot initialize framebuffer color for OpenVR");
+        return false;
+    }
+    if(!fbo->initDepth())
+    {
+        QMessageBox::critical(0,"OpenVR", "Cannot initialize framebuffer depth for OpenVR");
+        return false;
+    }*/
     return true;
 }
 

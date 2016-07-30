@@ -1747,8 +1747,16 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
             renderingParams.useFBO = true;
             renderingParams.drawBackground = (CONTEXT.currentLODLevel == 0);
             renderingParams.draw3DPass = true;
-            currentFBO = s_openvr.fbo;
-            bindFBO(s_openvr.fbo);
+            if(renderingParams.passIndex==0)
+            {
+                currentFBO = s_openvr.fboLeft;
+                bindFBO(s_openvr.fboLeft);
+            }
+            else
+            {
+                currentFBO = s_openvr.fboRight;
+                bindFBO(s_openvr.fboRight);
+            }
             CONTEXT.glW=s_openvr.RenderWidth;
             CONTEXT.glH=s_openvr.RenderHeigh;
             modifiedViewport=true;
@@ -1948,7 +1956,7 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
 			m_updateFBO = false;
 		}
 
-		if (!oculusMode)
+        if (!oculusMode && !s_openvr.session)
 		{
 			GLuint screenTex = 0;
 			if (m_activeGLFilter && (!m_stereoModeEnabled || m_stereoParams.glassType != StereoParams::OCULUS)) //not supported with Oculus right now!
@@ -2037,7 +2045,7 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
 	/******************/
 	/*** FOREGROUND ***/
 	/******************/
-	if (renderingParams.drawForeground && !oculusMode)
+    if (renderingParams.drawForeground && !oculusMode && !s_openvr.session)
 	{
 		drawForeground(CONTEXT, renderingParams);
 	}
@@ -2168,8 +2176,19 @@ void ccGLWindow::draw3D(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& renderingPara
 														ovrProjection_ClipRangeOpenGL);
 			projectionMat = FromOVRMat(proj);
 		}
-		else
 #endif //CC_OCULUS_SUPPORT
+#if 0
+#ifdef CC_OPENVR_SUPPORT
+        else if(m_stereoParams.glassType == StereoParams::OPENVR && s_openvr.session)
+        {
+            modelViewMat = getModelViewMatrix();
+            m_viewportParams.zNear = 0.001;
+            m_viewportParams.zFar = 1000.0;
+
+        }
+        else
+#endif
+#endif
 		{
 			//we use the standard modelview matrix
 			modelViewMat = getModelViewMatrix();
@@ -6140,12 +6159,13 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
             return false;
         }
         ccLog::Print("OpenVR init");
-        if(!s_openvr.SetupStereoRenderTargets())
+        if(!s_openvr.SetupStereoRenderTargets(context()))
         {
             QMessageBox::critical(asWidget(),"OpenVR", "OpenVR SetupStereoRenderTargets failed");
             return false;
         }
         ccLog::Print("Openvr render target set");
+        //s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
         s_openvr.session=true;
     }
 #else

@@ -43,14 +43,16 @@ public:
 
     void SetupCameras(float NearClip, float FarClip);
 
-    bool SetupStereoRenderTargets();
+    bool SetupStereoRenderTargets(QOpenGLContext *context);
 
     bool session;
 
-    ccFrameBufferObject *fbo;
+    ccFrameBufferObject *fboLeft, *fboRight;
     uint32_t RenderWidth,RenderHeigh;
 
 private:
+
+    bool SetupRenderTarget(ccFrameBufferObject *fbo, QOpenGLContext *context);
 
     vr::IVRSystem *HMD;
     vr::IVRRenderModels *rendermodels;
