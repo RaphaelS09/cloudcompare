@@ -45,10 +45,14 @@ public:
 
     bool SetupStereoRenderTargets(QOpenGLContext *context);
 
+    bool initCompositor();
+
     bool session;
 
     ccFrameBufferObject *fboLeft, *fboRight;
     uint32_t RenderWidth,RenderHeigh;
+
+
 
 private:
 

@@ -1749,11 +1749,13 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
             renderingParams.draw3DPass = true;
             if(renderingParams.passIndex==0)
             {
+                //ccLog::Print("rendering pass 0");
                 currentFBO = s_openvr.fboLeft;
                 bindFBO(s_openvr.fboLeft);
             }
             else
             {
+                //ccLog::Print("rendering pass 1");
                 currentFBO = s_openvr.fboRight;
                 bindFBO(s_openvr.fboRight);
             }
@@ -1761,7 +1763,7 @@ void ccGLWindow::fullRenderingPass(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& re
             CONTEXT.glH=s_openvr.RenderHeigh;
             modifiedViewport=true;
 
-            bindFBO(0);
+            //bindFBO(0);
 
         }
 
@@ -2177,17 +2179,19 @@ void ccGLWindow::draw3D(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& renderingPara
 			projectionMat = FromOVRMat(proj);
 		}
 #endif //CC_OCULUS_SUPPORT
-#if 0
 #ifdef CC_OPENVR_SUPPORT
-        else if(m_stereoParams.glassType == StereoParams::OPENVR && s_openvr.session)
+        if(m_stereoParams.glassType == StereoParams::OPENVR && s_openvr.session)
         {
             modelViewMat = getModelViewMatrix();
             m_viewportParams.zNear = 0.001;
             m_viewportParams.zFar = 1000.0;
-
+            projectionMat = modelViewMat;
+            /*vr::Texture_t leftEyeTexture = {(void*)s_openvr.fboLeft->getColorTexture(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
+            vr::Texture_t rightEyeTexture = {(void*)s_openvr.fboRight->getColorTexture(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );*/
         }
         else
-#endif
 #endif
 		{
 			//we use the standard modelview matrix
@@ -2314,6 +2318,17 @@ void ccGLWindow::draw3D(CC_DRAW_CONTEXT& CONTEXT, RenderingParams& renderingPara
 	{
 		glDisableSunLight();
 	}
+
+
+#ifdef CC_OPENVR_SUPPORT
+        if(m_stereoParams.glassType == StereoParams::OPENVR && s_openvr.session)
+        {
+            vr::Texture_t leftEyeTexture = {(void*)s_openvr.fboLeft->getColorTexture(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Left, &leftEyeTexture );
+            vr::Texture_t rightEyeTexture = {(void*)s_openvr.fboRight->getColorTexture(), vr::API_OpenGL, vr::ColorSpace_Gamma };
+            vr::VRCompositor()->Submit(vr::Eye_Right, &rightEyeTexture );
+        }
+#endif
 
 	logGLError("ccGLWindow::draw3D");
 }
@@ -4908,7 +4923,7 @@ void ccGLWindow::drawCustomLight()
 static void glDrawUnitCircle(QOpenGLContext* context, unsigned char dim, unsigned steps = 64)
 {
 	assert(context);
-	QOpenGLFunctions_2_1* glFunc = context->versionFunctions<QOpenGLFunctions_2_1>();
+    QOpenGLFunctions_2_1* glFunc = context->versionFunctions<QOpenGLFunctions_2_1>();
 	if (!glFunc)
 	{
 		return;
@@ -6159,14 +6174,24 @@ bool ccGLWindow::enableStereoMode(const StereoParams& params)
             return false;
         }
         ccLog::Print("OpenVR init");
+        //s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
         if(!s_openvr.SetupStereoRenderTargets(context()))
         {
             QMessageBox::critical(asWidget(),"OpenVR", "OpenVR SetupStereoRenderTargets failed");
             return false;
         }
         ccLog::Print("Openvr render target set");
-        //s_openvr.SetupCameras(m_viewportParams.zNear,m_viewportParams.zFar);
+        if(!s_openvr.initCompositor())
+        {
+            QMessageBox::critical(asWidget(),"OpenVR", "OpenVR initCompositor failed");
+            return false;
+        }
         s_openvr.session=true;
+
+        update();
+
+        needSecondFBO = false;
+        needAutoRefresh = true;
     }
 #else
     QMessageBox::critical(asWidget(), "OpenVR", "The OpenVR device is not supported by this version\n(use the 'Stereo' version)");
@@ -6251,6 +6276,8 @@ void ccGLWindow::disableStereoMode()
             if (s_openvr.session)
             {
                 QMessageBox::warning(asWidget(),"OpenVR","Nedodelano vypnuti");
+                s_openvr.session==false;
+                toggleAutoRefresh(false);
 			}
 #endif
 		}

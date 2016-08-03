@@ -1269,7 +1269,7 @@ void ccCameraSensor::drawMeOnly(CC_DRAW_CONTEXT& context)
 	//we draw a little 3d representation of the sensor and some of its attributes
 	
 	//get the set of OpenGL functions (version 2.1)
-	QOpenGLFunctions_2_1 *glFunc = context.glFunctions<QOpenGLFunctions_2_1>();
+    QOpenGLFunctions_2_1 *glFunc = context.glFunctions<QOpenGLFunctions_2_1>();
 	assert( glFunc != nullptr );
 	
 	if ( glFunc == nullptr )

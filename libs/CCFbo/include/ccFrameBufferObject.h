@@ -102,8 +102,8 @@ protected: //members
 	GLuint m_fboId;
 
 	// For portability, we need to use 2.1 + extensions to get FBOs
-	QOpenGLFunctions_2_1 m_glFunc;
-	QOpenGLExtension_ARB_framebuffer_object	m_glExtFunc;
+    QOpenGLFunctions_2_1 m_glFunc;
+    QOpenGLExtension_ARB_framebuffer_object m_glExtFunc;
 };
 
 #endif
